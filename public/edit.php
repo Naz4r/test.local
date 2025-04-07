@@ -5,9 +5,26 @@ $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $id = $_GET['id']  ? $_GET['id'] : null;
 if (!$id) exit("ID не вказано");
 
+$error= null;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = $_POST['name'];
     $price = $_POST['price'];
+if (!is_numeric($price) || $price < 0) {
+    $error = "Ціна повинна бути додатнім числом!";
+}else{
+    $price = (float)$price;
+    echo "<p style='color: green;'>Товар успішно збережено!</p>";
+}
+
+
+    if ($error) {
+        echo "<p style='color: red;'>$error</p>";
+        exit;
+    }
+
+
+
 
     $stmt = $pdo->prepare("UPDATE products SET name = ?, price = ? WHERE id = ?");
     $stmt->execute([$name, $price, $id]);
@@ -25,7 +42,7 @@ if (!$product) exit("Товар не знайдено");
 <h2>Редагувати товар</h2>
 <form method="post">
     Назва: <input type="text" name="name" value="<?= $product['name']?>" required><br>
-    Ціна: <input type="number" name="price" value="<?= $product['price'] ?>" required><br>
+    Ціна: <input type="number" name="price"  value="<?= $product['price'] ?>" required><br>
     <button type="submit">Зберегти</button>
 </form>
 <a href="index.php">← Назад</a>
